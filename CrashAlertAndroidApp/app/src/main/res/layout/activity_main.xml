@@ -41,4 +41,20 @@
         android:layout_marginTop="20dp"
         android:text="Showing Acceleration Levels:" />
 
+    <com.jjoe64.graphview.GraphView
+        android:layout_width="368dp"
+        android:layout_height="200dp"
+        android:id="@+id/graph"
+        tools:layout_editor_absoluteY="0dp"
+        tools:layout_editor_absoluteX="8dp"
+        android:gravity="center"
+        />
+
+    <TextView
+        android:id="@+id/status3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Showing Heart Rate:" />
+
 </LinearLayout>
