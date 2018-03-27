@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/CrashAlertAndroid.iml" filepath="$PROJECT_DIR$/CrashAlertAndroid.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CrashAlertAndroidApp.iml" filepath="$PROJECT_DIR$/CrashAlertAndroidApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
