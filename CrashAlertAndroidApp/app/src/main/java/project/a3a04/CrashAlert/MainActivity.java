@@ -31,7 +31,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     private static String volumeVisual = "";
     private Handler handler;
     private SoundMeter mSensor;
-//    private TextView volumeLevel, status;
+    private TextView heartTextview;
 
 
 
@@ -47,7 +47,16 @@ public class MainActivity extends Activity implements SensorEventListener {
     public static LinkedBlockingQueue<Double> accelerationQueue3 = new LinkedBlockingQueue<>(25);
 
 
-
+    private Handler handlerHeart = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            // message from API client! message from wear! The contents is the heartbeat.
+            if(heartTextview !=null) {
+                heartTextview.setText(Integer.toString(msg.what));
+                Toast.makeText(getApplicationContext(),Integer.toString(msg.what)+"",Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
 
     /** Called when the activity is first created. */
     @Override
@@ -55,6 +64,8 @@ public class MainActivity extends Activity implements SensorEventListener {
         super.onCreate(savedInstanceState);
         Toast.makeText(getBaseContext(), "Loading...", Toast.LENGTH_LONG).show();
         setContentView(R.layout.activity_main);
+
+        heartTextview = (TextView) findViewById(R.id.heartbeat);
 
 
         // Check for permissions
@@ -120,7 +131,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
                         updateTextView(R.id.volumeBars, "Volume: " + String.valueOf(volumeVisual));
                         Log.d("Amplify",String.valueOf(volumeToSend));
-                        updateTextView(R.id.status, "Showing Volume Levels:");
+                        updateTextView(R.id.status, "VOLUME AMPLITUDE LEVELS:");
                         handler.postDelayed(this, 250); // amount of delay between every cycle of volume level detection + sending the data  out
                     }
                 });
@@ -175,8 +186,8 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         // set manual Y bounds
         graph.getViewport().setYAxisBoundsManual(true);
-        graph.getViewport().setMinY(-50);
-        graph.getViewport().setMaxY(50);
+        graph.getViewport().setMinY(-25);
+        graph.getViewport().setMaxY(25);
 
         currentX = 0;
 
@@ -195,6 +206,8 @@ public class MainActivity extends Activity implements SensorEventListener {
     @Override
     public void onResume() {
         super.onResume();
+        // register our handlerHeart with the DataLayerService. This ensures we get messages whenever the service receives something.
+        DataLayerListenerService.setHandler(handlerHeart);
 
 
         updateTextView(R.id.status, "On resume, need to initiate sound sensor.");
@@ -213,7 +226,6 @@ public class MainActivity extends Activity implements SensorEventListener {
 
 
 
-
         sensorManager.registerListener(this,
                 sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
                 SensorManager.SENSOR_DELAY_NORMAL);
@@ -221,6 +233,9 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     @Override
     public void onPause() {
+        // unregister our handlerHeart so the service does not need to send its messages anywhere.
+        DataLayerListenerService.setHandler(null);
+
         updateTextView(R.id.status, "Paused.");
         super.onPause();
         sensorManager.unregisterListener(this);

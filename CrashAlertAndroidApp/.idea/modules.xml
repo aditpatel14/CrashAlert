@@ -3,9 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/CrashAlertAndroidApp.iml" filepath="$PROJECT_DIR$/CrashAlertAndroidApp.iml" />
-      <module fileurl="file://C:\Users\Adit\Desktop\CrashAlert\CrashAlertAndroidApp\CrashAlertAndroidApp.iml" filepath="C:\Users\Adit\Desktop\CrashAlert\CrashAlertAndroidApp\CrashAlertAndroidApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://C:\Users\Adit\Desktop\CrashAlert\CrashAlertAndroidApp\app\app.iml" filepath="C:\Users\Adit\Desktop\CrashAlert\CrashAlertAndroidApp\app\app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/crachalert/crachalert.iml" filepath="$PROJECT_DIR$/crachalert/crachalert.iml" />
     </modules>
   </component>
 </project>

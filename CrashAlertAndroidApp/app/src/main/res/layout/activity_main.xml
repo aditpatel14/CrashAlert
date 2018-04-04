@@ -1,60 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="project.a3a04.CrashAlert.MainActivity"
     android:orientation="vertical"
+    tools:context="project.a3a04.CrashAlert.MainActivity"
     >
 
-    <TextView
-        android:id="@+id/status"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Volume Amplitude Levels:" />
+        android:layout_weight="0.8"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/volumeLevel"
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/status"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="15dp"
+                    android:text="VOLUME AMPLITUDE LEVELS:"
+                    android:textColor="@android:color/holo_green_dark"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/volumeBars"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Volume: n/a"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textSize="20dp" />
+
+                <TextView
+                    android:id="@+id/volumeLevel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Volume Level: n/a"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textSize="20dp" />
+
+                <TextView
+                    android:id="@+id/status2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="15dp"
+                    android:text="ACCELERATION LEVELS:"
+                    android:textColor="@android:color/holo_green_dark"
+                    android:textSize="18sp" />
+
+                <com.jjoe64.graphview.GraphView
+                    android:id="@+id/graph"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:gravity="center"
+                    tools:layout_editor_absoluteX="8dp"
+                    tools:layout_editor_absoluteY="0dp" />
+
+                <TextView
+                    android:id="@+id/status3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="15dp"
+                    android:text="HEART RATE:"
+                    android:textColor="@android:color/holo_green_dark"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:text="0"
+                    android:layout_width="wrap_content"
+                    android:id="@+id/heartbeat"
+                    android:layout_height="wrap_content"
+                    android:textColor="#f1c40f"
+                    android:textSize="128sp"
+                    android:layout_gravity="center"/>
+
+            </LinearLayout>
+        </ScrollView>
+
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="75dp"
+        android:layout_weight="0.2"
+        android:background="@android:color/holo_green_light"
         android:gravity="center"
-        android:text="Volume Level: n/a"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textSize="20dp"
-        />
+        android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/volumeBars"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Large Text"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textSize="30dp" />
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="See Past Crash" />
 
-    <TextView
-        android:id="@+id/status2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Showing Acceleration Levels:" />
-
-    <com.jjoe64.graphview.GraphView
-        android:layout_width="368dp"
-        android:layout_height="200dp"
-        android:id="@+id/graph"
-        tools:layout_editor_absoluteY="0dp"
-        tools:layout_editor_absoluteX="8dp"
-        android:gravity="center"
-        />
-
-    <TextView
-        android:id="@+id/status3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Showing Heart Rate:" />
+        <Button
+            android:id="@+id/button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Settings" />
+    </LinearLayout>
 
 </LinearLayout>
