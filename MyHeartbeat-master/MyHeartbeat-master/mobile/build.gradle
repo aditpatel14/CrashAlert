@@ -33,4 +33,7 @@ dependencies {
     wearApp project(':wear')
     compile 'com.android.support:appcompat-v7:22.0.0'
     compile 'com.google.android.gms:play-services:7.0.0'
+
+    compile 'com.jjoe64:graphview:4.2.1'
+
 }

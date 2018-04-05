@@ -7,13 +7,12 @@
     android:orientation="vertical"
     tools:context=".MainActivity"
     tools:deviceIds="wear_square"
-    android:background="@drawable/background"
     >
 
     <TextView android:text="11" android:layout_width="wrap_content"
         android:id="@+id/heartbeat"
         android:layout_height="wrap_content"
-        android:textColor="#77ff99"
+        android:textColor="#f1c40f"
         android:textSize="128sp"
         android:layout_gravity="center"/>
 </FrameLayout >

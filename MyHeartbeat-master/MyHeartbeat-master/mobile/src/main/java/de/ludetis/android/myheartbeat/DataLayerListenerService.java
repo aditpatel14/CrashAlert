@@ -1,18 +1,16 @@
 package de.ludetis.android.myheartbeat;
 
-import android.content.Intent;
-import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 
 import com.google.android.gms.wearable.MessageEvent;
-import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.WearableListenerService;
 
 /**
- * Created by uwe on 23.03.15.
+ * Created by Adit on 2018-04-03.
  */
-public class DataLayerListenerService extends WearableListenerService {
+
+public class DataLayerListenerService  extends WearableListenerService {
 
     private static final String LOG_TAG = "WearableListener";
     public static final String HEARTBEAT = "HEARTBEAT";
@@ -32,7 +30,7 @@ public class DataLayerListenerService extends WearableListenerService {
     }
 
     @Override
-    public void onPeerConnected(Node peer) {
+    public void onPeerConnected(com.google.android.gms.wearable.Node peer) {
         super.onPeerConnected(peer);
 
         String id = peer.getId();
