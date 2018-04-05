@@ -1,34 +1,34 @@
 package de.ludetis.android.myheartbeat;
 
-import android.Manifest;
 import android.app.Activity;
-import android.content.pm.PackageManager;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
+import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
-
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-
 
 
 public class MainActivity extends  Activity implements SensorEventListener {
@@ -36,9 +36,13 @@ public class MainActivity extends  Activity implements SensorEventListener {
     private static String volumeVisual = "";
     private Handler handler;
     private SoundMeter mSensor;
-    private TextView heartTextview;
+    private TextView heartBeatsView;
 
-
+    //expert measurements
+    public static int volumeExpert = -1;
+    public static int heartExpert = -1;
+    public static double accExpert = -1;
+    boolean dialogTriggered = false;
 
     private SensorManager sensorManager;
     public static LineGraphSeries<DataPoint> series1;
@@ -47,17 +51,19 @@ public class MainActivity extends  Activity implements SensorEventListener {
 
     public static double currentX;
     private ThreadPoolExecutor liveChartExecutor;
-    public static LinkedBlockingQueue<Double> accelerationQueue1 = new LinkedBlockingQueue<>(25);
-    public static LinkedBlockingQueue<Double> accelerationQueue2 = new LinkedBlockingQueue<>(25);
-    public static LinkedBlockingQueue<Double> accelerationQueue3 = new LinkedBlockingQueue<>(25);
+    public static LinkedBlockingQueue<Double> accelerationQueue1X = new LinkedBlockingQueue<>(25);
+    public static LinkedBlockingQueue<Double> accelerationQueue2Y = new LinkedBlockingQueue<>(25);
+    public static LinkedBlockingQueue<Double> accelerationQueue3Z = new LinkedBlockingQueue<>(25);
 
-
+    //Heartbeat Handler, gets updates from smart watch
     private Handler handlerHeart = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             // message from API client! message from wear! The contents is the heartbeat.
-            if(heartTextview !=null) {
-                heartTextview.setText(Integer.toString(msg.what));
+            if(heartBeatsView != null) {
+                heartBeatsView.setText(Integer.toString(msg.what));
+                heartExpert = msg.what;
+                checkAccidentLevels();
 //                Toast.makeText(getApplicationContext(),Integer.toString(msg.what)+"",Toast.LENGTH_SHORT).show();
             }
         }
@@ -67,42 +73,14 @@ public class MainActivity extends  Activity implements SensorEventListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Toast.makeText(getBaseContext(), "Loading...", Toast.LENGTH_LONG).show();
+//        Toast.makeText(getBaseContext(), "Loading...", Toast.LENGTH_LONG).show();
         setContentView(R.layout.activity_main);
 
-        heartTextview = (TextView) findViewById(R.id.heartbeat);
+        // heart beat code----------------------------------------------------------------------
+        heartBeatsView = (TextView) findViewById(R.id.heartbeat);
 
 
-        // Check for permissions
-//        int permission = ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-//
-//        // If we don't have permissions, ask user for permissions
-//        if (permission != PackageManager.PERMISSION_GRANTED) {
-//            String[] PERMISSIONS_STORAGE = {
-//                    Manifest.permission.READ_EXTERNAL_STORAGE,
-//                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-//                    Manifest.permission.READ_PHONE_STATE,
-//                    Manifest.permission.RECORD_AUDIO
-//
-//            };
-//            int REQUEST_EXTERNAL_STORAGE = 1;
-//
-//            ActivityCompat.requestPermissions(
-//                    MainActivity.this,
-//                    PERMISSIONS_STORAGE,
-//                    REQUEST_EXTERNAL_STORAGE
-//            );
-//        }
-
-
-
-//        //Initialize views
-//        TextView volumeLevel = (TextView) findViewById(R.id.volumeLevel);
-//        TextView status = (TextView) findViewById(R.id.status);
-//        TextView volumeBars = (TextView) findViewById(R.id.volumeBars);
-
-
-        // Sound-based code
+        // Sound-based code----------------------------------------------------------------------
         mSensor = new SoundMeter();
 
         try {
@@ -127,13 +105,17 @@ public class MainActivity extends  Activity implements SensorEventListener {
                         // Get the volume from 0 to 255 in 'int'
                         double volume = 10 * mSensor.getTheAmplitude() / 32768;
                         int volumeToSend = (int) volume;
-                        updateTextView(R.id.volumeLevel, "Volume: " + String.valueOf(volumeToSend));
 
+                        //updates static expert
+                        volumeExpert = volumeToSend;
+                        updateTextView(R.id.volumeLevel, "Volume: " + String.valueOf(volumeToSend));
+                        checkAccidentLevels();
+
+                        //Updates volume bars
                         volumeVisual = "";
                         for( int i=0; i<volumeToSend; i++){
                             volumeVisual += "|";
                         }
-
                         updateTextView(R.id.volumeBars, "Volume: " + String.valueOf(volumeVisual));
                         Log.d("Amplify",String.valueOf(volumeToSend));
                         updateTextView(R.id.status, "VOLUME AMPLITUDE LEVELS:");
@@ -149,40 +131,35 @@ public class MainActivity extends  Activity implements SensorEventListener {
 
 
 
-
-
-
-
-
-
-
+        // accelration-based code----------------------------------------------------------------
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
         GraphView graph = (GraphView) findViewById(R.id.graph);
 
+        //add x to graph
         series1 = new LineGraphSeries<>();
         series1.setColor(Color.DKGRAY);
         graph.addSeries(series1);
 
+        //add y to graph
         series2 = new LineGraphSeries<>();
         series2.setColor(Color.BLUE);
         graph.addSeries(series2);
 
+        //add z to graph
         series3 = new LineGraphSeries<>();
         series3.setColor(Color.RED);
         graph.addSeries(series3);
 
         // activate horizontal zooming and scrolling
         graph.getViewport().setScalable(true);
-
         // activate horizontal scrolling
         graph.getViewport().setScrollable(true);
-
         // activate horizontal and vertical zooming and scrolling
         graph.getViewport().setScalableY(true);
-
         // activate vertical scrolling
         graph.getViewport().setScrollableY(true);
+
         // To set a fixed manual viewport use this:
         // set manual X bounds
         graph.getViewport().setXAxisBoundsManual(true);
@@ -201,22 +178,94 @@ public class MainActivity extends  Activity implements SensorEventListener {
         if (liveChartExecutor != null) {
             liveChartExecutor.execute(new AccelerationChart(new AccelerationChartHandler()));
         }
-//
 
 
+    }
+
+    public void checkAccidentLevels() {
+        double accThreshold = 1;
+        int volThreshold = 0;
+        int heartThreshold = 70;
+
+        if(accExpert >= accThreshold && volumeExpert >= volThreshold && heartExpert >= heartThreshold ){
+//            Toast.makeText(getBaseContext(), "ACCIDENT!!!", Toast.LENGTH_LONG).show();
+
+            if (dialogTriggered == false){
+                dialogTriggered = true;
+
+                AlertDialog dialog = new AlertDialog.Builder(this)
+                        .setTitle("Accident False Alarm?")
+                        .setMessage("Will Contact Emergency if no response in 5 seconds")
+                        .setPositiveButton("Yes - THIS IS A FALSE ALARM", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialogTriggered = false;
+                                Log.d("MainActivity", "YES - I'm Okay");
+                            }
+                        })
+                        .setNegativeButton("No - Contact Emergency", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Log.d("MainActivity", "NO - Contact Emergency ");
+                                dialogTriggered = false;
+                                openEmergencyController();
+
+                            }
+                        })
+                        .create();
+                dialog.setCanceledOnTouchOutside(false);
+                dialog.setCancelable(false);
+                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    private static final int AUTO_DISMISS_MILLIS = 5000;
+                    @Override
+                    public void onShow(final DialogInterface dialog) {
+                        final Button defaultButton = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
+                        final CharSequence positiveButtonText = defaultButton.getText();
+                        new CountDownTimer(AUTO_DISMISS_MILLIS, 100) {
+                            @Override
+                            public void onTick(long millisUntilFinished) {
+                                defaultButton.setText(String.format(
+                                        Locale.getDefault(), "%s (%d)",
+                                        positiveButtonText,
+                                        TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) + 1 //add one so it never displays zero
+                                ));
+                            }
+                            @Override
+                            public void onFinish() {
+                                if (((AlertDialog) dialog).isShowing()) {
+                                    dialog.dismiss();
+//                                    dialogTriggered = false;
+                                    openEmergencyController();
+                                }
+                            }
+                        }.start();
+                    }
+                });
+
+                dialog.show();
 
 
+            }
+
+
+        }
+    }
+
+    public void openEmergencyController(){
+        Intent myIntent = new Intent(this, EmergencyController.class);
+        startActivity(myIntent);
     }
 
     @Override
     public void onResume() {
         super.onResume();
+
+        // heart beat code----------------------------------------------------------------------
         // register our handlerHeart with the DataLayerService. This ensures we get messages whenever the service receives something.
         DataLayerListenerService.setHandler(handlerHeart);
 
-
+        // Sound-based code----------------------------------------------------------------------
         updateTextView(R.id.status, "On resume, need to initiate sound sensor.");
-        // Sound based code
         try {
             mSensor.start();
             Toast.makeText(getBaseContext(), "Sound sensor initiated.", Toast.LENGTH_SHORT).show();
@@ -226,14 +275,15 @@ public class MainActivity extends  Activity implements SensorEventListener {
             e.printStackTrace();
         }
 
-
-
-
-
-
+        // accelration-based code----------------------------------------------------------------
         sensorManager.registerListener(this,
                 sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
                 SensorManager.SENSOR_DELAY_NORMAL);
+
+
+        // check experts----------------------------------------------------------------
+        checkAccidentLevels();
+
     }
 
     @Override
@@ -270,10 +320,12 @@ public class MainActivity extends  Activity implements SensorEventListener {
 
         double accelerationSquareRoot = (x * x + y * y + z * z) / (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
         double acceleration = Math.sqrt(accelerationSquareRoot);
+        accExpert = acceleration;
+        updateTextView(R.id.accLevel, "" + String.valueOf(acceleration).substring(0, 10));
 
-        accelerationQueue1.offer(x);
-        accelerationQueue2.offer(y);
-        accelerationQueue3.offer(z);
+        accelerationQueue1X.offer(x);
+        accelerationQueue2Y.offer(y);
+        accelerationQueue3Z.offer(z);
     }
 
     @Override

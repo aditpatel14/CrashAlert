@@ -25,9 +25,9 @@ public class AccelerationChart implements Runnable {
 
             try {
                 Thread.sleep(100); // Speed up the X axis
-                acceleration1 = MainActivity.accelerationQueue1.poll();
-                acceleration2 = MainActivity.accelerationQueue2.poll();
-                acceleration3 = MainActivity.accelerationQueue3.poll();
+                acceleration1 = MainActivity.accelerationQueue1X.poll();
+                acceleration2 = MainActivity.accelerationQueue2Y.poll();
+                acceleration3 = MainActivity.accelerationQueue3Z.poll();
 
             } catch (InterruptedException e) {
                 e.printStackTrace();
