@@ -333,6 +333,13 @@ public class MainActivity extends  Activity implements SensorEventListener {
         startActivity(intent);
     }
 
+    public void logout(View view){
+        Intent intent = new Intent(this, LoginActivity.class);
+        //this is prevent the app from opening crash dialog, when not on screen
+        dialogTriggered = true;
+        startActivity(intent);
+    }
+
     public void openSettings(View view){
         Intent intent = new Intent(this, SettingsActivity.class);
         //this is prevent the app from opening crash dialog, when not on screen

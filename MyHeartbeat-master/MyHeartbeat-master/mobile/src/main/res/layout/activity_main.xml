@@ -117,7 +117,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="See Past Crash"
+            android:text="See Records"
             android:onClick="openPastCrash"
             />
 
@@ -128,6 +128,15 @@
             android:layout_weight="1"
             android:text="Settings"
             android:onClick="openSettings"
+            />
+
+        <Button
+            android:id="@+id/button3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Logout"
+            android:onClick="logout"
             />
     </LinearLayout>
 
