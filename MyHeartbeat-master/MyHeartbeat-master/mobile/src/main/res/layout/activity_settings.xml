@@ -40,7 +40,6 @@ tools:context=".SettingsActivity">
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:inputType="textPersonName"
-                android:hint="Name"
                 android:textColor="@android:color/holo_green_dark"
 
                 />
@@ -60,13 +59,29 @@ tools:context=".SettingsActivity">
                 android:layout_weight="0.8"
                 android:ems="10"
                 android:inputType="phone"
-                android:hint="Number"
                 android:textColor="@android:color/holo_green_dark"
 
                 />
 
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:text="EMERGENCY SETTINGS: "
+                android:textColor="@android:color/black"
+                android:textSize="18sp" />
+
+            <CheckBox
+                android:id="@+id/checkBoxCallEmergency"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="15dp"
+                android:text="Allow to Text Emergency?" />
+
             <Button
-                android:id="@+id/button3"
+                android:id="@+id/saveSettings"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"

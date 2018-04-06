@@ -92,7 +92,7 @@ public class MainActivity extends  Activity implements SensorEventListener {
 
         try {
             mSensor.start();
-            Toast.makeText(getBaseContext(), "Sound sensor initiated.", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getBaseContext(), "Sound sensor initiated.", Toast.LENGTH_SHORT).show();
         } catch (IllegalStateException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -105,7 +105,7 @@ public class MainActivity extends  Activity implements SensorEventListener {
             public void run() {
                 //mSensor.start();
                 Log.d("Amplify","HERE");
-                Toast.makeText(getBaseContext(), "Working!", Toast.LENGTH_LONG).show();
+                Toast.makeText(getBaseContext(), "Sound Sensor Working!", Toast.LENGTH_SHORT).show();
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -275,7 +275,7 @@ public class MainActivity extends  Activity implements SensorEventListener {
     @Override
     public void onResume() {
         super.onResume();
-        Toast.makeText(getBaseContext(), "RESUMED", Toast.LENGTH_LONG).show();
+//        Toast.makeText(getBaseContext(), "RESUMED", Toast.LENGTH_LONG).show();
         dialogTriggered = false;
 
 
@@ -287,10 +287,10 @@ public class MainActivity extends  Activity implements SensorEventListener {
 //        updateTextView(R.id.status, "On resume, need to initiate sound sensor.");
         try {
             mSensor.start();
-            Toast.makeText(getBaseContext(), "Sound sensor initiated.", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getBaseContext(), "Sound sensor initiated.", Toast.LENGTH_SHORT).show();
         } catch (IllegalStateException e) {
             // TODO Auto-generated catch block
-            Toast.makeText(getBaseContext(), "On resume, sound sensor messed up...", Toast.LENGTH_LONG).show();
+//            Toast.makeText(getBaseContext(), "On resume, sound sensor messed up...", Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
 
@@ -328,11 +328,15 @@ public class MainActivity extends  Activity implements SensorEventListener {
 
     public void openPastCrash(View view){
         Intent intent = new Intent(this, PastCrash.class);
+        //this is prevent the app from opening crash dialog, when not on screen
+        dialogTriggered = true;
         startActivity(intent);
     }
 
     public void openSettings(View view){
         Intent intent = new Intent(this, SettingsActivity.class);
+        //this is prevent the app from opening crash dialog, when not on screen
+        dialogTriggered = true;
         startActivity(intent);
     }
 

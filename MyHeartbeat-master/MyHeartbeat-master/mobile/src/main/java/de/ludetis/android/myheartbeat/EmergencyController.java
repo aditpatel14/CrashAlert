@@ -23,26 +23,12 @@ import java.util.Date;
 
 
 public class EmergencyController extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-    // LogCat tag
     private static final String TAG = MainActivity.class.getSimpleName();
-
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 1000;
 
     private Location mLastLocation;
-    private boolean textSent = false;
-
     // Google client to interact with Google API
     private GoogleApiClient mGoogleApiClient;
-
-    // boolean flag to toggle periodic location updates
-    private boolean mRequestingLocationUpdates = false;
-
-    private LocationRequest mLocationRequest;
-
-    // Location updates intervals in sec
-    private static int UPDATE_INTERVAL = 10000; // 10 sec
-    private static int FATEST_INTERVAL = 5000; // 5 sec
-    private static int DISPLACEMENT = 10; // 10 meters
 
     // UI elements
     private TextView lblLocation;
@@ -54,7 +40,13 @@ public class EmergencyController extends Activity implements GoogleApiClient.Con
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_emergency_controller);
 
-        //Appends crash information to local data base---------------------------
+        // Update Emergency Contact Info from files to screen---------------------
+        SettingsActivity.emergencyName = FileIO.readEmergencyContactFromFile(this);
+        SettingsActivity.emergencyNumber = FileIO.readEmergencyPhoneFromFile(this);
+        updateTextView(R.id.emergencycontactinfo, SettingsActivity.emergencyName + "\n" + SettingsActivity.emergencyNumber);
+
+
+        //Appends crash information to local data base----------------------------
         Date c = Calendar.getInstance().getTime();
         System.out.println("Current time => " + c);
 
@@ -72,14 +64,14 @@ public class EmergencyController extends Activity implements GoogleApiClient.Con
 
         updateTextView(R.id.crashinfo, newRecord);
 
-        lblLocation = (TextView) findViewById(R.id.location);
 
+        //Add user location-----------------------------------------------------
+        lblLocation = (TextView) findViewById(R.id.location);
         // First we need to check availability of play services
         if (checkPlayServices()) {
             // Building the GoogleApi client
             buildGoogleApiClient();
         }
-
         displayLocation();
 
 
@@ -92,11 +84,11 @@ public class EmergencyController extends Activity implements GoogleApiClient.Con
     }
 
     private void sendEmergencyText() {
-        if (textSent == false) {
-            textSent = true;
+        if (SettingsActivity.allowTextingEmergency == true && SettingsActivity.emergencyNumber.length() == 10) {
             Toast.makeText(getBaseContext(), "Sending SOS Text", Toast.LENGTH_SHORT).show();
-//                sendSms("6474655118", "Testing! ");
-
+            sendSms(SettingsActivity.emergencyNumber, "TESTING: Emergency @ Lat:" + latitude + " Long" + longitude);
+        } else {
+            Toast.makeText(getBaseContext(), "Sending SOS Text Not Sent, change settings", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -105,8 +97,7 @@ public class EmergencyController extends Activity implements GoogleApiClient.Con
      */
     private void displayLocation() {
 
-        mLastLocation = LocationServices.FusedLocationApi
-                .getLastLocation(mGoogleApiClient);
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
         if (mLastLocation != null) {
             latitude = mLastLocation.getLatitude();
@@ -115,7 +106,6 @@ public class EmergencyController extends Activity implements GoogleApiClient.Con
             lblLocation.setText("Lat: " + latitude + "\n Long: " + longitude);
             sendEmergencyText();
         } else {
-
             lblLocation.setText("(Couldn't get the location. Make sure location is enabled on the device)");
         }
     }
