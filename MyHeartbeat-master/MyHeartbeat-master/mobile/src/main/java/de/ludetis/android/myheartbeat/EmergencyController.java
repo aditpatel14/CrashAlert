@@ -16,169 +16,194 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 
 public class EmergencyController extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-        // LogCat tag
-        private static final String TAG = MainActivity.class.getSimpleName();
+    // LogCat tag
+    private static final String TAG = MainActivity.class.getSimpleName();
 
-        private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 1000;
+    private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 1000;
 
-        private Location mLastLocation;
-        private boolean textSent = false;
+    private Location mLastLocation;
+    private boolean textSent = false;
 
-        // Google client to interact with Google API
-        private GoogleApiClient mGoogleApiClient;
+    // Google client to interact with Google API
+    private GoogleApiClient mGoogleApiClient;
 
-        // boolean flag to toggle periodic location updates
-        private boolean mRequestingLocationUpdates = false;
+    // boolean flag to toggle periodic location updates
+    private boolean mRequestingLocationUpdates = false;
 
-        private LocationRequest mLocationRequest;
+    private LocationRequest mLocationRequest;
 
-        // Location updates intervals in sec
-        private static int UPDATE_INTERVAL = 10000; // 10 sec
-        private static int FATEST_INTERVAL = 5000; // 5 sec
-        private static int DISPLACEMENT = 10; // 10 meters
+    // Location updates intervals in sec
+    private static int UPDATE_INTERVAL = 10000; // 10 sec
+    private static int FATEST_INTERVAL = 5000; // 5 sec
+    private static int DISPLACEMENT = 10; // 10 meters
 
-        // UI elements
-        private TextView lblLocation;
-        double latitude = 0.0;
-        double longitude = 0.0;
+    // UI elements
+    private TextView lblLocation;
+    double latitude = 0.0;
+    double longitude = 0.0;
 
     @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_emergency_controller);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_emergency_controller);
 
-            lblLocation = (TextView) findViewById(R.id.location);
+        //Appends crash information to local data base---------------------------
+        Date c = Calendar.getInstance().getTime();
+        System.out.println("Current time => " + c);
 
-            // First we need to check availability of play services
-            if (checkPlayServices()) {
+        SimpleDateFormat df = new SimpleDateFormat("MMM-dd-yyyy HH:mm:ss");
+        String formattedDate = df.format(c);
 
-                // Building the GoogleApi client
-                buildGoogleApiClient();
-            }
-            displayLocation();
+        String pastRecords = FileIO.readFromRecords(this);
+        String newRecord =
+                "\n CRASH AT: " + formattedDate + "\n"
+                        + "\nVolume: " + MainActivity.volumeExpertAtCrash + "\n"
+                        + "\nAcc: " + (MainActivity.accExpertAtCrash + "").substring(0, 10) + "\n"
+                        + "\nHeart Rate: " + MainActivity.heartExpertAtCrash + "\n\n\n\n";
 
+        FileIO.writeToRecords(newRecord + "\n" + pastRecords, this);
 
+        updateTextView(R.id.crashinfo, newRecord);
+
+        lblLocation = (TextView) findViewById(R.id.location);
+
+        // First we need to check availability of play services
+        if (checkPlayServices()) {
+            // Building the GoogleApi client
+            buildGoogleApiClient();
         }
 
-        private void sendEmergencyText(){
-            if (textSent == false){
-                textSent = true;
+        displayLocation();
+
+
+    }
+
+    public void updateTextView(int text_id, String toThis) {
+        TextView val = (TextView) findViewById(text_id);
+        val.setText(toThis);
+        return;
+    }
+
+    private void sendEmergencyText() {
+        if (textSent == false) {
+            textSent = true;
+            Toast.makeText(getBaseContext(), "Sending SOS Text", Toast.LENGTH_SHORT).show();
 //                sendSms("6474655118", "Testing! ");
 
-            }
         }
+    }
 
-        /**
-         * Method to display the location on UI
-         * */
-        private void displayLocation() {
+    /**
+     * Method to display the location on UI
+     */
+    private void displayLocation() {
 
-            mLastLocation = LocationServices.FusedLocationApi
-                    .getLastLocation(mGoogleApiClient);
+        mLastLocation = LocationServices.FusedLocationApi
+                .getLastLocation(mGoogleApiClient);
 
-            if (mLastLocation != null) {
-                latitude = mLastLocation.getLatitude();
-                longitude = mLastLocation.getLongitude();
+        if (mLastLocation != null) {
+            latitude = mLastLocation.getLatitude();
+            longitude = mLastLocation.getLongitude();
 
-                lblLocation.setText(latitude + ", " + longitude);
-                sendEmergencyText();
+            lblLocation.setText("Lat: " + latitude + "\n Long: " + longitude);
+            sendEmergencyText();
+        } else {
+
+            lblLocation.setText("(Couldn't get the location. Make sure location is enabled on the device)");
+        }
+    }
+
+    /**
+     * Creating google api client object
+     */
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API).build();
+    }
+
+    /**
+     * Method to verify google play services on the device
+     */
+    private boolean checkPlayServices() {
+        int resultCode = GooglePlayServicesUtil
+                .isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+                GooglePlayServicesUtil.getErrorDialog(resultCode, this,
+                        PLAY_SERVICES_RESOLUTION_REQUEST).show();
             } else {
-
-                lblLocation.setText("(Couldn't get the location. Make sure location is enabled on the device)");
+                Toast.makeText(getApplicationContext(),
+                        "This device is not supported.", Toast.LENGTH_LONG)
+                        .show();
+                finish();
             }
+            return false;
         }
+        return true;
+    }
 
-        /**
-         * Creating google api client object
-         * */
-        protected synchronized void buildGoogleApiClient() {
-            mGoogleApiClient = new GoogleApiClient.Builder(this)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(LocationServices.API).build();
-        }
-
-        /**
-         * Method to verify google play services on the device
-         * */
-        private boolean checkPlayServices() {
-            int resultCode = GooglePlayServicesUtil
-                    .isGooglePlayServicesAvailable(this);
-            if (resultCode != ConnectionResult.SUCCESS) {
-                if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-                    GooglePlayServicesUtil.getErrorDialog(resultCode, this,
-                            PLAY_SERVICES_RESOLUTION_REQUEST).show();
-                } else {
-                    Toast.makeText(getApplicationContext(),
-                            "This device is not supported.", Toast.LENGTH_LONG)
-                            .show();
-                    finish();
-                }
-                return false;
-            }
-            return true;
-        }
-
-        @Override
-        protected void onStart() {
-            super.onStart();
-            if (mGoogleApiClient != null) {
-                mGoogleApiClient.connect();
-            }
-        }
-
-        @Override
-        protected void onResume() {
-            super.onResume();
-
-            checkPlayServices();
-        }
-
-        /**
-         * Google api callback methods
-         */
-        @Override
-        public void onConnectionFailed(ConnectionResult result) {
-            Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = "
-                    + result.getErrorCode());
-        }
-
-        @Override
-        public void onConnected(Bundle arg0) {
-
-            // Once connected with google api, get the location
-            displayLocation();
-        }
-
-        @Override
-        public void onConnectionSuspended(int arg0) {
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (mGoogleApiClient != null) {
             mGoogleApiClient.connect();
         }
+    }
 
-    private void sendSms(String phonenumber, String message)
-    {
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        checkPlayServices();
+    }
+
+    /**
+     * Google api callback methods
+     */
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+        Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = "
+                + result.getErrorCode());
+    }
+
+    @Override
+    public void onConnected(Bundle arg0) {
+
+        // Once connected with google api, get the location
+        displayLocation();
+    }
+
+    @Override
+    public void onConnectionSuspended(int arg0) {
+        mGoogleApiClient.connect();
+    }
+
+    private void sendSms(String phonenumber, String message) {
         SmsManager manager = SmsManager.getDefault();
 
 //        PendingIntent piSend = PendingIntent.getBroadcast(this, 0, new Intent(SMS_SENT), 0);
 //        PendingIntent piDelivered = PendingIntent.getBroadcast(this, 0, new Intent(SMS_DELIVERED), 0);
 
-            int length = message.length();
+        int length = message.length();
 
-            if(length > 160)
-            {
-                ArrayList<String> messagelist = manager.divideMessage(message);
+        if (length > 160) {
+            ArrayList<String> messagelist = manager.divideMessage(message);
 
-                manager.sendMultipartTextMessage(phonenumber, null, messagelist, null, null);
-            }
-            else
-            {
-                manager.sendTextMessage(phonenumber, null, message, null, null);
-            }
+            manager.sendMultipartTextMessage(phonenumber, null, messagelist, null, null);
+        } else {
+            manager.sendTextMessage(phonenumber, null, message, null, null);
+        }
 
     }
+
 
 }

@@ -39,10 +39,17 @@ public class MainActivity extends  Activity implements SensorEventListener {
     private TextView heartBeatsView;
 
     //expert measurements
-    public static int volumeExpert = -1;
-    public static int heartExpert = -1;
-    public static double accExpert = -1;
-    boolean dialogTriggered = false;
+    public int volumeExpert = -1;
+    public int heartExpert = -1;
+    public double accExpert = -1;
+    public static int volumeExpertAtCrash = -1;
+    public static int heartExpertAtCrash  = -1;
+    public static double accExpertAtCrash  = -1;
+    double accThreshold = 1;
+    int volThreshold = 4;
+    int heartThreshold = 70;
+    public static boolean dialogTriggered = false;
+
 
     private SensorManager sensorManager;
     public static LineGraphSeries<DataPoint> series1;
@@ -183,11 +190,14 @@ public class MainActivity extends  Activity implements SensorEventListener {
     }
 
     public void checkAccidentLevels() {
-        double accThreshold = 1;
-        int volThreshold = 0;
-        int heartThreshold = 70;
+
+
 
         if(accExpert >= accThreshold && volumeExpert >= volThreshold && heartExpert >= heartThreshold ){
+
+             volumeExpertAtCrash = volumeExpert;
+             heartExpertAtCrash  = heartExpert;
+             accExpertAtCrash  = accExpert;
 //            Toast.makeText(getBaseContext(), "ACCIDENT!!!", Toast.LENGTH_LONG).show();
 
             if (dialogTriggered == false){
@@ -195,7 +205,7 @@ public class MainActivity extends  Activity implements SensorEventListener {
 
                 AlertDialog dialog = new AlertDialog.Builder(this)
                         .setTitle("Accident False Alarm?")
-                        .setMessage("Will Contact Emergency if no response in 5 seconds")
+                        .setMessage("Will Contact Emergency if no response in 7 seconds")
                         .setPositiveButton("Yes - THIS IS A FALSE ALARM", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -207,8 +217,8 @@ public class MainActivity extends  Activity implements SensorEventListener {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 Log.d("MainActivity", "NO - Contact Emergency ");
-                                dialogTriggered = false;
                                 openEmergencyController();
+
 
                             }
                         })
@@ -216,7 +226,7 @@ public class MainActivity extends  Activity implements SensorEventListener {
                 dialog.setCanceledOnTouchOutside(false);
                 dialog.setCancelable(false);
                 dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                    private static final int AUTO_DISMISS_MILLIS = 5000;
+                    private static final int AUTO_DISMISS_MILLIS = 7000;
                     @Override
                     public void onShow(final DialogInterface dialog) {
                         final Button defaultButton = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
@@ -234,7 +244,6 @@ public class MainActivity extends  Activity implements SensorEventListener {
                             public void onFinish() {
                                 if (((AlertDialog) dialog).isShowing()) {
                                     dialog.dismiss();
-//                                    dialogTriggered = false;
                                     openEmergencyController();
                                 }
                             }
@@ -252,20 +261,30 @@ public class MainActivity extends  Activity implements SensorEventListener {
     }
 
     public void openEmergencyController(){
+        //creates intent to start new activity
+
+
         Intent myIntent = new Intent(this, EmergencyController.class);
+        //starts emergency controller activity
         startActivity(myIntent);
+        // closes current activity
+//        this.finish();
+
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        Toast.makeText(getBaseContext(), "RESUMED", Toast.LENGTH_LONG).show();
+        dialogTriggered = false;
+
 
         // heart beat code----------------------------------------------------------------------
         // register our handlerHeart with the DataLayerService. This ensures we get messages whenever the service receives something.
         DataLayerListenerService.setHandler(handlerHeart);
 
         // Sound-based code----------------------------------------------------------------------
-        updateTextView(R.id.status, "On resume, need to initiate sound sensor.");
+//        updateTextView(R.id.status, "On resume, need to initiate sound sensor.");
         try {
             mSensor.start();
             Toast.makeText(getBaseContext(), "Sound sensor initiated.", Toast.LENGTH_SHORT).show();
@@ -292,6 +311,10 @@ public class MainActivity extends  Activity implements SensorEventListener {
         DataLayerListenerService.setHandler(null);
 
         updateTextView(R.id.status, "Paused.");
+
+        //this is prevent the app from opening crash dialog, when not on screen
+        dialogTriggered = true;
+
         super.onPause();
         sensorManager.unregisterListener(this);
 
@@ -303,6 +326,15 @@ public class MainActivity extends  Activity implements SensorEventListener {
         return;
     }
 
+    public void openPastCrash(View view){
+        Intent intent = new Intent(this, PastCrash.class);
+        startActivity(intent);
+    }
+
+    public void openSettings(View view){
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
+    }
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {

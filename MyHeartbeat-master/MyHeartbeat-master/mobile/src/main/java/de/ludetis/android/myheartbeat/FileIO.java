@@ -24,9 +24,7 @@ public class FileIO {
     }
 
     public static String readFromFile(Context context) {
-
         String ret = "";
-
         try {
             InputStream inputStream = context.openFileInput("config.txt");
 
@@ -49,7 +47,54 @@ public class FileIO {
         } catch (IOException e) {
             Log.e("login activity", "Can not read file: " + e.toString());
         }
-
         return ret;
     }
+
+
+
+
+
+    public static String readFromRecords(Context context) {
+        String ret = "";
+        try {
+            InputStream inputStream = context.openFileInput("records.txt");
+
+            if ( inputStream != null ) {
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                String receiveString = "";
+                StringBuilder stringBuilder = new StringBuilder();
+
+                while ( (receiveString = bufferedReader.readLine()) != null ) {
+                    if(receiveString.trim().length()==0){
+                        stringBuilder.append("\n");
+                    }
+                    stringBuilder.append(receiveString);
+
+                }
+
+                inputStream.close();
+                ret = stringBuilder.toString();
+            }
+        }
+        catch (FileNotFoundException e) {
+            Log.e("login activity", "File not found: " + e.toString());
+        } catch (IOException e) {
+            Log.e("login activity", "Can not read file: " + e.toString());
+        }
+        return ret;
+    }
+
+    public static void writeToRecords(String data,Context context) {
+        try {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("records.txt", Context.MODE_PRIVATE));
+            outputStreamWriter.write(data+"\n\n");
+            outputStreamWriter.close();
+        }
+        catch (IOException e) {
+            Log.e("Exception", "File write failed: " + e.toString());
+        }
+    }
+
+
 }

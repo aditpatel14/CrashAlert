@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="0.8"
         android:orientation="vertical">
+
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -35,11 +36,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="Volume Level: n/a"
+                    android:text="n/a"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textSize="25dp"
                     android:textColor="@android:color/holo_green_dark"
-                    />
+                    android:textSize="25dp" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -56,19 +56,32 @@
                     android:gravity="center"
                     android:text="Volume Level: n/a"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textSize="25dp"
                     android:textColor="@android:color/holo_green_dark"
-                    />
+                    android:textSize="15dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:text="CRASH INFORMATION: "
+                    android:textColor="@android:color/black"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/crashinfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Volume Level: n/a"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="@android:color/holo_green_dark"
+                    android:textSize="15dp" />
 
             </LinearLayout>
 
 
-
         </ScrollView>
     </LinearLayout>
-
-
-
 
 
 </android.support.constraint.ConstraintLayout>

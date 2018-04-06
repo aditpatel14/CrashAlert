@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:background="@android:color/background_light"
+tools:context=".SettingsActivity">
+
+
+
+
+    <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_weight="0.8"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:text="EMERGENCY CONTACT NAME: "
+                android:textColor="@android:color/black"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/enterName"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="textPersonName"
+                android:hint="Name"
+                android:textColor="@android:color/holo_green_dark"
+
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:text="EMERGENCY CONTACT PHONE: "
+                android:textColor="@android:color/black"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/enterNumber"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.8"
+                android:ems="10"
+                android:inputType="phone"
+                android:hint="Number"
+                android:textColor="@android:color/holo_green_dark"
+
+                />
+
+            <Button
+                android:id="@+id/button3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:text="SAVE" />
+
+
+        </LinearLayout>
+
+
+    </ScrollView>
+</LinearLayout>
+
+
+</LinearLayout>
